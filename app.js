@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
 const dbConnection = require('./db/dbConnection');
 const { errorMiddleWare } = require('./middlewares/error');
-
+const messageRouter = require('./routers/messageRouter');
 require('dotenv').config({path : './config/config.env'});
 
 app.use(cors({
@@ -20,7 +20,8 @@ app.use(fileUpload({
     useTempFiles : true,
     tempFileDir : '/tmp/'
 }))
-
+// import all router 
+app.use('/api/v1/message',messageRouter);
 dbConnection();
 app.use(errorMiddleWare);
 // export app file 
