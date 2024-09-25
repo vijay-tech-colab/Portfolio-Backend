@@ -6,6 +6,7 @@ const fileUpload = require('express-fileupload');
 const dbConnection = require('./db/dbConnection');
 const { errorMiddleWare } = require('./middlewares/error');
 const messageRouter = require('./routers/messageRouter');
+const userRouter = require('./routers/userRouter');
 require('dotenv').config({path : './config/config.env'});
 
 app.use(cors({
@@ -22,6 +23,7 @@ app.use(fileUpload({
 }))
 // import all router 
 app.use('/api/v1/message',messageRouter);
+app.use('/api/v1/user',userRouter)
 dbConnection();
 app.use(errorMiddleWare);
 // export app file 
