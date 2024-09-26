@@ -10,10 +10,12 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return next(new ErrorHandler("Avatar and resume are required !"));
     }
+
     const { avatar, resume } = req.files;
     const cloudinaryResponseForAvatar = await cloudinary.uploader.upload(avatar.tempFilePath, {
         folder: "AVATARS"
     });
+
     if (!cloudinaryResponseForAvatar || cloudinaryResponseForAvatar.error) {
         console.error("Cloudinary Error", cloudinaryResponseForAvatar.error || "Unknown Cloudinary Error")
     }
@@ -25,6 +27,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
     if (!cloudinaryResponseForResume || cloudinaryResponseForResume.error) {
         console.error("Cloudinary Error", cloudinaryResponseForResume.error || "Unknown Cloudinary Error")
     }
+    
     const {
         fullname,
         email,
@@ -38,6 +41,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
         twitterURl,
         linkedInURl
     } = req.body;
+    
     const isEmailExits = await User.findOne({email});
     if(isEmailExits)
         return next(new ErrorHandler("Dublicate email",400))
@@ -64,4 +68,20 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
     });
 
     generateToken(user,"User Register",201,res);
-})
+});
+
+exports.login = catchAsyncErrors(async (req,res,next) => {
+    const {email,password} = req.body;
+    if(!email || !password){
+        return next(new ErrorHandler("Email and Password are required ?"));
+    }
+    const user = await User.findOne({email}).select("+password");
+    if(!user){
+        return next(new ErrorHandler("Invalid Email or Password "));
+    }
+    const isMatchPassword = await user.comparePassword(password);
+    if(!isMatchPassword){
+        return next(new ErrorHandler("Invalid Email or Password "));
+    }
+    generateToken(user,"Login successfully",200,res);
+});
